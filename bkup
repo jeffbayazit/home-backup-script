@@ -1,0 +1,31 @@
+#!/bin/bash
+home_dir="/home/jeff"
+backup_name="bkup_$(date +%Y-%m-%d_%H-%M-%S)"
+
+# Find the mount point of the USB drive
+usb_drive=$(lsblk -o LABEL,MOUNTPOINT | awk '/Backup/ && $1 !~ /boot\/efi/ {print $2}')
+
+# If no match by label, fall back to the previous method
+if [ -z "$usb_drive" ]; then
+	usb_drive=$(lsblk -o NAME,MOUNTPOINT | awk '/sd[a-z][1-9]/ && $2 !~ /^\/$/ {print $2}')
+fi
+
+if [ -z "$usb_drive" ]; then
+	echo "No USB drive found."
+	exit 1
+fi
+
+backup_dir="$usb_drive/$backup_name"
+
+# Print the variables (for debugging)
+# echo "Home Directory: $home_dir" > debug.txt
+# echo "Backup Name: $backup_name" >> debug.txt
+# echo "USB Drive: $usb_drive" >> debug.txt
+# echo "Backup Directory: $backup_dir" >> debug.txt
+
+# Create the timestamped backup directory
+mkdir -p "$backup_dir"
+
+# Perform the backup
+rsync -avh --progress --exclude 'snap' --exclude 'Virt-Machine' "$home_dir/" "$backup_dir/"
+echo "Backup completed to $backup_dir"
