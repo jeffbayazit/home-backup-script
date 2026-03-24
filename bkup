@@ -27,5 +27,7 @@ backup_dir="$usb_drive/$backup_name"
 mkdir -p "$backup_dir"
 
 # Perform the backup
-rsync -avh --progress --exclude 'snap' --exclude 'Virt-Machine' "$home_dir/" "$backup_dir/"
+# Perform the backup
+rsync -avh --progress --exclude 'snap' --exclude 'Virt-Machine' --exclude 'venv' --exclude '.venv' "$home_dir/" "$backup_dir/"
+
 echo "Backup completed to $backup_dir"
